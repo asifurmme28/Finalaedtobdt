@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AED to BDT — live rate tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F7F4;--card:#fff;--ink:#0D1A14;--mut:#5b6b63;--line:rgba(0,0,0,.1);--in:#F4F7F4;--g:#0E6B47;--gh:#0A5A3B;--tint:#DDF3E8;--tintx:#0A5A3B;--gold:#FBEFD0;--goldx:#7A5410;--hero:#0E6B47}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0C1410;--card:#14201A;--ink:#EAF1ED;--mut:#93A59B;--line:rgba(255,255,255,.12);--in:#0C1410;--tint:rgba(52,211,153,.18);--tintx:#6EE7B7;--gold:rgba(245,180,60,.18);--goldx:#F6C760;--hero:#0F3A2A}}
+:root[data-theme=dark]{--bg:#0C1410;--card:#14201A;--ink:#EAF1ED;--mut:#93A59B;--line:rgba(255,255,255,.12);--in:#0C1410;--tint:rgba(52,211,153,.18);--tintx:#6EE7B7;--gold:rgba(245,180,60,.18);--goldx:#F6C760;--hero:#0F3A2A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif;transition:background .2s,color .2s}
+.wrap{max-width:64rem;margin:0 auto;padding:20px 16px 32px;display:grid;gap:20px}
+h1,h2,.num{font-family:'Bricolage Grotesque',Figtree,sans-serif;font-variant-numeric:tabular-nums;margin:0}
+h1{font-size:1.5rem}h2{font-size:1.15rem}
+.mut{color:var(--mut);font-size:.875rem;margin:0}
+header{display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px}
+.pad{padding:20px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #0E8A5B;outline-offset:2px}
+.icon{border:1px solid var(--line);background:none;border-radius:99px;width:40px;height:40px;font-size:1.1rem}
+.btn{background:var(--g);color:#fff;border:0;border-radius:12px;padding:10px 16px;font-weight:600;display:inline-flex;gap:8px;align-items:center}
+.btn:hover{background:var(--gh)}.btn:disabled{opacity:.6;cursor:default}
+.btn.o{background:none;color:var(--ink);border:1px solid var(--line)}
+.conv{display:grid;gap:20px;padding:20px}
+@media(min-width:800px){.conv{grid-template-columns:1fr 1fr;padding:28px}}
+.inp{display:flex;align-items:center;background:var(--in);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin:8px 0 16px}
+.inp:focus-within{outline:2px solid #0E8A5B}
+.inp input{flex:1;min-width:0;background:none;border:0;outline:0;font:700 1.9rem 'Bricolage Grotesque',sans-serif}
+.inp b{color:var(--g)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .inp b{color:#6EE7B7}}
+:root[data-theme=dark] .inp b{color:#6EE7B7}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.out{background:var(--hero);color:#fff;border-radius:12px;padding:20px}
+.out .num{font-size:clamp(2rem,8vw,3rem);font-weight:700;word-break:break-all;margin:4px 0}
+.out p{margin:0;color:#CDEFE0;font-size:.875rem}
+.sk{height:56px;border-radius:8px;background:rgba(255,255,255,.2);animation:p 1.2s infinite alternate}
+@keyframes p{to{opacity:.4}}
+.err{display:flex;gap:12px;align-items:center;justify-content:space-between;background:#FEE2E2;color:#7F1D1D;border:1px solid #FCA5A5;border-radius:16px;padding:14px 16px;font-size:.9rem}
+.err button{background:none;border:0;text-decoration:underline;font-weight:600;color:inherit}
+[hidden]{display:none!important}
+.head{padding:20px 20px 12px}
+ul{list-style:none;margin:0;padding:0}
+li{display:grid;grid-template-columns:1.6fr 1fr .8fr 1.2fr 1.2fr;gap:8px 16px;padding:14px 20px;border-top:1px solid var(--line);font-size:.9rem;align-items:center;animation:in .3s both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+li .r{text-align:right}
+.rt{font:700 1rem 'Bricolage Grotesque',sans-serif;font-variant-numeric:tabular-nums}
+li a{color:inherit;font-weight:600}
+.b{font-size:.72rem;font-weight:600;border-radius:99px;padding:2px 8px;margin-left:6px;white-space:nowrap}
+.b.g{background:var(--tint);color:var(--tintx)}.b.y{background:var(--gold);color:var(--goldx)}
+@media(max-width:700px){li{grid-template-columns:1fr 1fr}.nm{grid-column:1/-1}li .r{text-align:left}li [data-l]::before{content:attr(data-l);display:block;font:400 .75rem Figtree;color:var(--mut)}}
+.sk2{height:52px;margin:8px 20px;border-radius:12px;background:var(--line);animation:p 1.2s infinite alternate}
+.ch{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center}
+.tabs{display:flex;border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs button{border:0;background:none;border-radius:8px;padding:6px 14px;font-weight:600;color:var(--mut)}
+.tabs button[aria-selected=true]{background:var(--g);color:#fff}
+#chart{position:relative;height:280px;margin-top:16px}
+#chart svg{display:block;touch-action:pan-y}
+#chart text{font:12px Figtree,sans-serif;fill:var(--mut)}
+.empty{height:100%;display:grid;place-items:center;text-align:center;padding:0 24px;background:var(--line);border-radius:12px;color:var(--mut);font-size:.9rem}
+.tip{position:absolute;top:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-size:.8rem;pointer-events:none;white-space:nowrap}
+form{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+form input{flex:1;min-width:200px;background:var(--in);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.spin{animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
+footer{font-size:.78rem;color:var(--mut)}
+code{background:var(--line);padding:1px 5px;border-radius:5px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>AED to BDT</h1><p class="mut">Send money from the UAE to Bangladesh at the best rate</p></div>
+    <button class="icon" id="theme" aria-label="Toggle dark mode">☾</button>
+  </header>
+
+  <div id="err" class="err" role="alert" hidden><span id="errt"></span><button id="retry">Retry</button></div>
+
+  <section class="card conv">
+    <div>
+      <label for="amt" style="font-weight:600;font-size:.9rem">You send</label>
+      <div class="inp"><input id="amt" inputmode="decimal" value="1000" placeholder="0"><b>AED</b></div>
+      <div class="row">
+        <button class="btn" id="ref"><svg id="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.3L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.3L21 16"/><path d="M16 16h5v5"/></svg><span id="reft">Refresh rates</span></button>
+        <span class="mut" id="upd">Waiting for first update</span>
+      </div>
+    </div>
+    <div class="out">
+      <p>They receive (mid-market, before fees)</p>
+      <div id="big"><div class="sk"></div></div>
+      <p id="mid"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="head"><h2>Compare providers</h2><p class="mut">Sorted by rate, highest first. Indicative estimates — confirm on the provider’s site.</p></div>
+    <ul id="list"><li style="display:block;border:0"><div class="sk2" style="margin:0"></div></li></ul>
+  </section>
+
+  <section class="card pad">
+    <div class="ch">
+      <div><h2>Rate trend</h2><p class="mut" id="chg">AED → BDT</p></div>
+      <div class="tabs" role="tablist"><button role="tab" data-r="7D" aria-selected="true">7D</button><button role="tab" data-r="30D" aria-selected="false">30D</button><button role="tab" data-r="Live" aria-selected="false">Live</button></div>
+    </div>
+    <div id="chart"></div>
+  </section>
+
+  <section class="card pad">
+    <h2>🔗 Use your own data source</h2>
+    <p class="mut" style="margin-top:4px">Paste a JSON endpoint that returns the AED→BDT rate (for example <code>rates.BDT</code>). It must use https and allow cross-origin requests.</p>
+    <form id="f"><input id="api" type="url" aria-label="Custom API endpoint" placeholder="https://api.example.com/latest?base=AED"><button class="btn" type="submit">Apply</button><button class="btn o" type="button" id="reset">Reset</button></form>
+    <p class="mut" id="src" style="margin-top:8px;word-break:break-all"></p>
+  </section>
+
+  <footer>Live mid-market rates come from the source above. Provider rates, fees and delivery times are modelled estimates, not quotes — exchange houses don’t publish public rate APIs. Always confirm the final rate with the provider before sending.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
+const DEF='https://open.er-api.com/v6/latest/AED';
+// Margins and fees are indicative estimates applied to the live mid-market rate. Edit freely.
+const P=[
+ {n:'Wise',u:'https://wise.com',m:.0045,f:12,e:'Seconds – 1 day'},
+ {n:'Lulu Exchange',u:'https://luluexchange.com/',m:.0065,f:10,e:'Minutes'},
+ {n:'Federal Exchange',u:'https://federalexchange.ae/',m:.0085,f:12,e:'Minutes – 1 hour'},
+ {n:'Universal Exchange',u:'https://www.universalexchange.net/',m:.0105,f:10,e:'Minutes – 2 hours'},
+ {n:'Sharaf Exchange',u:'https://sharafexchange.ae/',m:.0125,f:15,e:'Minutes – 1 day'},
+ {n:'Western Union',u:'https://www.westernunion.com/ae/en/home.html',m:.022,f:15,e:'Minutes'},
+ {n:'Bank transfer',u:null,m:.028,f:25,e:'1 – 3 business days'}];
+const S={rate:null,api:store.get('api')||DEF,range:'7D',hist:null,ticks:[],busy:false};
+const fmt=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const iso=d=>d.toISOString().slice(0,10);
+const amt=()=>parseFloat($('#amt').value)||0;
+
+function pick(j){const v=j?.rates?.BDT??j?.conversion_rates?.BDT??j?.data?.BDT??j?.BDT??j?.rate??j?.result??j?.conversion_rate;const n=Number(v?.value??v);return isFinite(n)&&n>0?n:null}
+async function fetchRate(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('Rate source responded with '+r.status);const x=pick(await r.json());if(!x)throw Error('No AED→BDT rate found in the response (expected e.g. rates.BDT)');return x}
+async function fetchHist(days,live){
+  try{const r=await fetch(`https://api.frankfurter.dev/v1/${iso(new Date(Date.now()-days*864e5))}..${iso(new Date())}?base=AED&symbols=BDT`);
+    if(!r.ok)throw 0;const j=await r.json();
+    const pts=Object.entries(j.rates||{}).map(([d,r])=>({label:d.slice(5),rate:r.BDT})).filter(p=>p.rate);
+    if(pts.length>2)return{pts,sim:false}}catch{}
+  let seed=days*7919;const rnd=()=>(seed=seed*16807%2147483647)/2147483647-.5;const pts=[];let v=live;
+  for(let i=0;i<=days;i++){pts.unshift({label:iso(new Date(Date.now()-i*864e5)).slice(5),rate:v});v*=1+rnd()*.006}
+  return{pts,sim:true}}
+
+function setBusy(b){S.busy=b;$('#ref').disabled=b;$('#ic').classList.toggle('spin',b);$('#reft').textContent=b?'Refreshing…':'Refresh rates'}
+async function load(){
+  setBusy(true);
+  try{const r=await fetchRate(S.api);const now=new Date();S.rate=r;$('#err').hidden=true;
+    $('#upd').textContent='Updated '+now.toLocaleTimeString();
+    S.ticks=[...S.ticks.slice(-59),{label:now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),rate:r}];
+    if(!S.hist&&S.range!=='Live')loadHist()}
+  catch(e){$('#errt').textContent='Couldn’t load the live rate: '+(e.message||'Network error')+'. '+(S.rate?'Showing the last rate we received.':'Check your connection or the custom source below, then try again.');$('#err').hidden=false}
+  setBusy(false);render()}
+async function loadHist(){if(S.range==='Live'||!S.rate)return;S.hist=await fetchHist(S.range==='7D'?7:30,S.rate);chart()}
+
+function render(){
+  const r=S.rate,a=amt();
+  $('#src').textContent='Active source: '+(S.api===DEF?'ExchangeRate-API (open.er-api.com)':S.api);
+  if(!r){chart();return}
+  $('#big').innerHTML='<div class="num">৳ '+fmt(a*r)+'</div>';
+  $('#mid').textContent='1 AED = '+fmt(r,4)+' BDT';
+  const rows=P.map(p=>{const x=r*(1-p.m);return{...p,x,net:Math.max(a-p.f,0)*x}}).sort((p,q)=>q.x-p.x);
+  const top=Math.max(...rows.map(p=>p.net));
+  $('#list').innerHTML=rows.map((p,i)=>`<li style="animation-delay:${i*40}ms"><div class="nm">${p.u?`<a href="${p.u}" target="_blank" rel="noreferrer">${p.n} ↗</a>`:`<b>${p.n}</b>`}${i===0?'<span class="b g">Best rate</span>':''}${p.net===top&&a>0?'<span class="b y">Most received</span>':''}</div><div data-l="Rate" class="rt">${fmt(p.x,4)}</div><div data-l="Fee">${p.f?fmt(p.f,0)+' AED':'Free'}</div><div data-l="Delivery">${p.e}</div><div data-l="They receive" class="rt r">৳ ${fmt(p.net)}</div></li>`).join('');
+  chart()}
+
+function chart(){
+  const el=$('#chart'),h=S.range==='Live'?null:S.hist,d=S.range==='Live'?S.ticks:h&&h.pts;
+  if(!d||d.length<2){el.innerHTML=`<div class="empty">${S.range==='Live'?'Collecting live points — one is added every minute and on each refresh.':'Loading history…'}</div>`;$('#chg').textContent='AED → BDT';return}
+  const ch=(d[d.length-1].rate/d[0].rate-1)*100;
+  $('#chg').textContent=(ch>=0?'▲ ':'▼ ')+fmt(Math.abs(ch))+'% over this period'+(h&&h.sim?' · simulated history (live history unavailable)':'');
+  const W=el.clientWidth,H=el.clientHeight,l=48,r=10,t=10,b=24,v=d.map(p=>p.rate),mn=Math.min(...v),mx=Math.max(...v),pad=(mx-mn||mx*.002)*.15,lo=mn-pad,hi=mx+pad;
+  const X=i=>l+i*(W-l-r)/(d.length-1),Y=y=>t+(hi-y)*(H-t-b)/(hi-lo);
+  const line=d.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.rate).toFixed(1)).join('');
+  let g='';for(let k=0;k<4;k++){const y=lo+(hi-lo)*k/3;g+=`<line x1="${l}" x2="${W-r}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)"/><text x="${l-6}" y="${Y(y)+4}" text-anchor="end">${y.toFixed(2)}</text>`}
+  const n=Math.min(5,d.length);for(let k=0;k<n;k++){const i=Math.round(k*(d.length-1)/(n-1));g+=`<text x="${X(i)}" y="${H-6}" text-anchor="middle">${d[i].label}</text>`}
+  el.innerHTML=`<svg width="${W}" height="${H}"><defs><linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E8A5B" stop-opacity=".35"/><stop offset="1" stop-color="#0E8A5B" stop-opacity="0"/></linearGradient></defs>${g}<path d="${line}L${X(d.length-1)} ${H-b}L${l} ${H-b}Z" fill="url(#gr)"/><path d="${line}" fill="none" stroke="#0E8A5B" stroke-width="2.5" stroke-linejoin="round"/><circle id="dot" r="5" fill="#0E8A5B" stroke="var(--card)" stroke-width="2" display="none"/></svg><div class="tip" hidden></div>`;
+  const s=el.querySelector('svg'),dot=el.querySelector('#dot'),tip=el.querySelector('.tip');
+  s.onpointermove=e=>{const x=e.clientX-s.getBoundingClientRect().left,i=Math.max(0,Math.min(d.length-1,Math.round((x-l)/(W-l-r)*(d.length-1))));
+    dot.setAttribute('cx',X(i));dot.setAttribute('cy',Y(d[i].rate));dot.removeAttribute('display');tip.hidden=false;
+    tip.textContent=d[i].label+' · '+fmt(d[i].rate,4)+' BDT';tip.style.left=Math.max(0,Math.min(X(i)-70,W-160))+'px'};
+  s.onpointerleave=()=>{dot.setAttribute('display','none');tip.hidden=true}}
+
+// events
+$('#amt').addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^\d.]/g,'');render()});
+$('#ref').onclick=load;$('#retry').onclick=load;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{S.range=b.dataset.r;document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));S.hist=null;S.range==='Live'?chart():(chart(),loadHist())});
+function useApi(u){store.set('api',u);S.api=u;$('#api').value=u;S.ticks=[];S.rate=null;S.hist=null;$('#big').innerHTML='<div class="sk"></div>';load()}
+$('#f').onsubmit=e=>{e.preventDefault();const u=$('#api').value.trim();if(u)useApi(u)};
+$('#reset').onclick=()=>useApi(DEF);
+const root=document.documentElement,sys=matchMedia('(prefers-color-scheme: dark)');
+function theme(t){root.dataset.theme=t;store.set('theme',t);$('#theme').textContent=t==='dark'?'☀':'☾'}
+theme(store.get('theme')||(sys.matches?'dark':'light'));
+$('#theme').onclick=()=>theme(root.dataset.theme==='dark'?'light':'dark');
+addEventListener('resize',chart);
+$('#api').value=S.api;
+load();setInterval(load,60000);
+</script>
+</body>
+</html>
